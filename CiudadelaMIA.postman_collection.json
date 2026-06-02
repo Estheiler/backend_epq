@@ -1,0 +1,819 @@
+{
+	"info": {
+		"_postman_id": "8c45be91-032a-4318-ae2d-cc51db4efc2b",
+		"name": "EPQ - Backend",
+		"description": "Colección de endpoints para el monitoreo de indicadores técnicos, registro de macromedidor, auditoría de accesos y de usuarios, y exportaciones dinámicas a Excel.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Autenticación",
+			"item": [
+				{
+					"name": "Sembrado Inicial de Administrador",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/seed-first-admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"seed-first-admin"
+							]
+						},
+						"description": "Crea el superadministrador inicial (superadmin / superadminCiudadela123) en la base de datos si la tabla de usuarios está completamente vacía."
+					},
+					"response": []
+				},
+				{
+					"name": "Iniciar Sesión (Login)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (response.success && response.data && response.data.access_token) {",
+									"    pm.collectionVariables.set(\"token\", response.data.access_token);",
+									"    console.log(\"Token JWT guardado automáticamente en la colección.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"superadmin\",\n    \"password\": \"superadminCiudadela123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autentica al usuario y guarda automáticamente el token JWT en las variables de la colección para su uso en las siguientes peticiones."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Perfil de Usuario",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"profile"
+							]
+						},
+						"description": "Retorna el perfil del usuario autenticado a partir del token JWT proporcionado."
+					},
+					"response": []
+				},
+				{
+					"name": "Cerrar Sesión (Logout)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Registra el evento de cierre de sesión en la auditoría de accesos."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Gestión de Usuarios",
+			"item": [
+				{
+					"name": "Crear Nuevo Usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"operario1\",\n    \"password\": \"operarioEPQ2026\",\n    \"role\": \"operario\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Permite al administrador o superadministrador crear cuentas de usuarios respetando la jerarquía."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Lista de usuarios disponibles según el nivel de privilegios del ejecutor."
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Nombre de Usuario",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"operario1_modificado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2"
+							]
+						},
+						"description": "Modifica los datos del usuario indicado respetando la jerarquía de roles."
+					},
+					"response": []
+				},
+				{
+					"name": "Activar Usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/2/activate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2",
+								"activate"
+							]
+						},
+						"description": "Activa la cuenta de un usuario para que pueda iniciar sesión."
+					},
+					"response": []
+				},
+				{
+					"name": "Desactivar Usuario",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/2/deactivate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2",
+								"deactivate"
+							]
+						},
+						"description": "Desactiva la cuenta del usuario impidiendo futuros inicios de sesión."
+					},
+					"response": []
+				},
+				{
+					"name": "Cambiar Rol de Usuario",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"hidraulico\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/2/role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2",
+								"role"
+							]
+						},
+						"description": "Modifica el rol de un usuario respetando la escala jerárquica."
+					},
+					"response": []
+				},
+				{
+					"name": "Restablecer Contraseña",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"nuevaContrasena2026\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/2/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2",
+								"reset-password"
+							]
+						},
+						"description": "Restablece por la fuerza la contraseña de un usuario."
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Usuario (Baja Lógica)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"users",
+								"2"
+							]
+						},
+						"description": "Realiza el borrado lógico del usuario registrando al responsable en auditoría."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Indicadores Técnicos",
+			"item": [
+				{
+					"name": "Crear Registro de Indicadores",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fecha\": \"2026-06-01\",\n    \"cobertura_acueducto\": 98.50,\n    \"usuarios_acueducto\": 1520,\n    \"micromedicion_nominal\": 95.00,\n    \"micromedicion_real\": 92.40,\n    \"irca\": 1.25,\n    \"ianc_promedio\": 22.30,\n    \"produccion_acueducto\": 45000.00,\n    \"consumo_acueducto\": 38000.00,\n    \"continuidad_acueducto\": 23.80,\n    \"cobertura_alcantarillado\": 95.00,\n    \"usuarios_alcantarillado\": 1480,\n    \"cobertura_aseo\": 100.00,\n    \"usuarios_aseo\": 1550,\n    \"barrido_km\": 15.40,\n    \"continuidad_aseo\": 6.00,\n    \"produccion_residuos_ton\": 42.50\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/indicadores-tecnicos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"indicadores-tecnicos"
+							]
+						},
+						"description": "Crea un nuevo registro diario o mensual de indicadores técnicos (Solo admin o superadmin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar / Filtrar Indicadores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/indicadores-tecnicos?anio=2026&mes=6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"indicadores-tecnicos"
+							],
+							"query": [
+								{
+									"key": "anio",
+									"value": "2026"
+								},
+								{
+									"key": "mes",
+									"value": "6"
+								},
+								{
+									"key": "fechaInicio",
+									"value": "2026-06-01",
+									"disabled": true
+								},
+								{
+									"key": "fechaFin",
+									"value": "2026-06-30",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Lista todos los indicadores. Permite filtrar dinámicamente por año, mes o rangos de fecha."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Años y Meses Disponibles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/indicadores-tecnicos/filtros-disponibles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"indicadores-tecnicos",
+								"filtros-disponibles"
+							]
+						},
+						"description": "Permite al frontend React conocer qué años y meses tienen datos registrados para construir selectores dinámicos."
+					},
+					"response": []
+				},
+				{
+					"name": "Obtener Indicador por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/indicadores-tecnicos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"indicadores-tecnicos",
+								"1"
+							]
+						},
+						"description": "Consulta un registro de indicadores específico por su ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Actualizar Indicador",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cobertura_acueducto\": 99.10,\n    \"irca\": 1.10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/indicadores-tecnicos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"indicadores-tecnicos",
+								"1"
+							]
+						},
+						"description": "Actualiza parcialmente los valores de un registro de indicadores (Solo admin o superadmin)."
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Indicador",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/indicadores-tecnicos/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"indicadores-tecnicos",
+								"1"
+							]
+						},
+						"description": "Elimina de forma lógica un registro de indicadores (Solo admin o superadmin)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Registro de Macromedidor",
+			"item": [
+				{
+					"name": "Registrar Lectura Macromedidor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fecha\": \"2026-06-01\",\n    \"hora\": 8,\n    \"lectura_m3\": 12450.50,\n    \"observaciones\": \"Lectura matutina del operario de turno.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registro-macromedidor",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registro-macromedidor"
+							]
+						},
+						"description": "Registra una nueva lectura. Calcula de forma automática el consumo consolidado respecto a la lectura anterior y el consumo acumulado del día."
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Todas las Lecturas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registro-macromedidor",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registro-macromedidor"
+							]
+						},
+						"description": "Lista de todas las lecturas del macromedidor ordenadas cronológicamente de forma descendente."
+					},
+					"response": []
+				},
+				{
+					"name": "Lecturas de un Día Completo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registro-macromedidor/fecha?fecha=2026-06-01",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registro-macromedidor",
+								"fecha"
+							],
+							"query": [
+								{
+									"key": "fecha",
+									"value": "2026-06-01"
+								}
+							]
+						},
+						"description": "Obtiene todas las lecturas registradas para un día en particular."
+					},
+					"response": []
+				},
+				{
+					"name": "Lecturas por Rango de Fechas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registro-macromedidor/rango?fechaInicio=2026-06-01&fechaFin=2026-06-07",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registro-macromedidor",
+								"rango"
+							],
+							"query": [
+								{
+									"key": "fechaInicio",
+									"value": "2026-06-01"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2026-06-07"
+								}
+							]
+						},
+						"description": "Obtiene las lecturas y consumos en un rango de fechas determinado."
+					},
+					"response": []
+				},
+				{
+					"name": "Lecturas por Mes Completo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registro-macromedidor/mes?anio=2026&mes=6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registro-macromedidor",
+								"mes"
+							],
+							"query": [
+								{
+									"key": "anio",
+									"value": "2026"
+								},
+								{
+									"key": "mes",
+									"value": "6"
+								}
+							]
+						},
+						"description": "Obtiene la totalidad de lecturas de un mes específico."
+					},
+					"response": []
+				},
+				{
+					"name": "Datos Preparados para Gráficos (Curvas)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registro-macromedidor/curvas?fechaInicio=2026-06-01&fechaFin=2026-06-07",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registro-macromedidor",
+								"curvas"
+							],
+							"query": [
+								{
+									"key": "fechaInicio",
+									"value": "2026-06-01"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2026-06-07"
+								}
+							]
+						},
+						"description": "Retorna una serie de tiempo estructurada con timestamps, ideal para alimentar gráficos de líneas y barras en React."
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar Lectura (Baja Lógica)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/registro-macromedidor/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"registro-macromedidor",
+								"1"
+							]
+						},
+						"description": "Elimina una lectura y automáticamente corrige los consumos acumulados diarios de las lecturas del mismo día de forma lógica."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auditoría (SUPERADMIN / ADMIN)",
+			"item": [
+				{
+					"name": "Consultar Auditoría de Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auditoria/usuarios",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auditoria",
+								"usuarios"
+							]
+						},
+						"description": "Retorna la lista de todas las acciones de auditoría aplicadas sobre los usuarios."
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar Auditoría de Accesos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auditoria/accesos",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auditoria",
+								"accesos"
+							]
+						},
+						"description": "Retorna el historial de accesos al sistema (LOGIN_EXITOSO, LOGIN_FALLIDO, LOGOUT)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Exportación a Excel",
+			"item": [
+				{
+					"name": "Exportar Indicadores Técnicos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/export/indicadores-tecnicos?anio=2026&mes=6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"export",
+								"indicadores-tecnicos"
+							],
+							"query": [
+								{
+									"key": "anio",
+									"value": "2026"
+								},
+								{
+									"key": "mes",
+									"value": "6"
+								},
+								{
+									"key": "fechaInicio",
+									"value": "2026-06-01",
+									"disabled": true
+								},
+								{
+									"key": "fechaFin",
+									"value": "2026-06-30",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Genera y descarga en memoria el archivo Excel con los indicadores filtrados."
+					},
+					"response": []
+				},
+				{
+					"name": "Exportar Lecturas Macromedidor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/export/registro-macromedidor?fechaInicio=2026-06-01&fechaFin=2026-06-07",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"export",
+								"registro-macromedidor"
+							],
+							"query": [
+								{
+									"key": "fechaInicio",
+									"value": "2026-06-01"
+								},
+								{
+									"key": "fechaFin",
+									"value": "2026-06-07"
+								},
+								{
+									"key": "fecha",
+									"value": "2026-06-01",
+									"disabled": true
+								},
+								{
+									"key": "anio",
+									"value": "2026",
+									"disabled": true
+								},
+								{
+									"key": "mes",
+									"value": "6",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Genera y descarga en memoria el archivo Excel con las lecturas filtradas. Filtra automáticamente por operario logueado si es OPERARIO."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
