@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Protect headers with helmet
+  app.use(helmet());
 
   // Set global API prefix
   app.setGlobalPrefix('api');
@@ -20,9 +24,12 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS for React frontend integration
+  // Enable CORS with dynamic/configurable origins for frontend integration
+  const frontendUrl = process.env.FRONTEND_URL;
+  const allowedOrigins = frontendUrl ? frontendUrl.split(',') : true;
+  
   app.enableCors({
-    origin: true, // Allow all origins for development, adjust for production
+    origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
