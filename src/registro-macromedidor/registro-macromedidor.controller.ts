@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Delete,
   Body,
   Param,
@@ -12,6 +13,8 @@ import {
 } from '@nestjs/common';
 import { RegistroMacromedidorService } from './registro-macromedidor.service';
 import { CreateRegistroMacromedidorDto } from './dto/create-registro-macromedidor.dto';
+import { UpdateRegistroMacromedidorDto } from './dto/update-registro-macromedidor.dto';
+
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -118,6 +121,21 @@ export class RegistroMacromedidorController {
     return {
       success: true,
       message: 'Lectura de macromedidor eliminada y consumos recalculados exitosamente.',
+    };
+  }
+
+  @Patch(':id')
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateRegistroMacromedidorDto,
+    @GetUser('id') userId: number,
+  ) {
+    const data = await this.service.update(id, updateDto, userId);
+    return {
+      success: true,
+      message: 'Lectura de macromedidor actualizada y consumos recalculados exitosamente.',
+      data,
     };
   }
 }

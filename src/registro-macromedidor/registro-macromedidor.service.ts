@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegistroMacromedidor } from './entities/registro-macromedidor.entity';
 import { CreateRegistroMacromedidorDto } from './dto/create-registro-macromedidor.dto';
+import { UpdateRegistroMacromedidorDto } from './dto/update-registro-macromedidor.dto';
+
 
 @Injectable()
 export class RegistroMacromedidorService {
@@ -172,4 +174,46 @@ export class RegistroMacromedidorService {
       await this.repository.save(reg);
     }
   }
+
+  async update(id: number, updateDto: UpdateRegistroMacromedidorDto, userId: number): Promise<RegistroMacromedidor> {
+    const record = await this.repository.findOne({ where: { id } });
+    if (!record) {
+      throw new NotFoundException(`No se encontró el registro con ID ${id}`);
+    }
+
+    const { lectura_m3, observaciones } = updateDto;
+
+    if (observaciones !== undefined) {
+      record.observaciones = observaciones;
+    }
+
+    let lecturaChanged = false;
+    if (lectura_m3 !== undefined && Number(lectura_m3) !== Number(record.lectura_m3)) {
+      lecturaChanged = true;
+      record.lectura_m3 = lectura_m3;
+    }
+
+    record.updatedBy = userId;
+
+    if (lecturaChanged) {
+      // Find previous record to calculate new consolidado_m3
+      const previous = await this.repository.createQueryBuilder('registro')
+        .where('registro.fecha < :fecha OR (registro.fecha = :fecha AND registro.hora < :hora)', { fecha: record.fecha, hora: record.hora })
+        .orderBy('registro.fecha', 'DESC')
+        .addOrderBy('registro.hora', 'DESC')
+        .getOne();
+
+      record.consolidado_m3 = previous ? Number((record.lectura_m3 - previous.lectura_m3).toFixed(2)) : 0;
+    }
+
+    const savedRecord = await this.repository.save(record);
+
+    if (lecturaChanged) {
+      // Trigger subsequent recalculations for next readings and daily cumulative sums
+      await this.handleSubsequentRecalculation(record.fecha, record.hora, savedRecord);
+    }
+
+    return savedRecord;
+  }
 }
+
