@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Unique } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Unique, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('registro_macromedidor')
 @Unique(['fecha', 'hora'])
@@ -29,6 +30,10 @@ export class RegistroMacromedidor {
 
   @Column({ type: 'int', name: 'created_by', nullable: true })
   createdBy: number;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'created_by' })
+  createdByUser?: User;
 
   @Column({ type: 'int', name: 'updated_by', nullable: true })
   updatedBy: number;

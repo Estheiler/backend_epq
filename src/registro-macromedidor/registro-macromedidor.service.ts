@@ -24,6 +24,9 @@ export class RegistroMacromedidorService {
       );
     }
 
+    // Multiply user raw input by 10 to convert to m3 scale
+    const lecturaM3 = Number((lectura_m3 * 10).toFixed(2));
+
     // 2. Find chronologically previous reading
     const previous = await this.repository.createQueryBuilder('registro')
       .where('registro.fecha < :fecha OR (registro.fecha = :fecha AND registro.hora < :hora)', { fecha, hora })
@@ -32,7 +35,7 @@ export class RegistroMacromedidorService {
       .getOne();
 
     // 3. Calculate consolidado_m3
-    const consolidadoM3 = previous ? Number((lectura_m3 - previous.lectura_m3).toFixed(2)) : 0;
+    const consolidadoM3 = previous ? Number((lecturaM3 - previous.lectura_m3).toFixed(2)) : 0;
 
     // 4. Calculate consumo_acumulado_dia
     const sameDayPrevious = await this.repository.createQueryBuilder('registro')
@@ -46,6 +49,7 @@ export class RegistroMacromedidorService {
     // 5. Create and save new reading
     const newRecord = this.repository.create({
       ...createDto,
+      lectura_m3: lecturaM3,
       consolidado_m3: consolidadoM3,
       consumo_acumulado_dia: consumoAcumuladoDia,
       operario_id: operarioId,
@@ -57,7 +61,7 @@ export class RegistroMacromedidorService {
     // 6. Recalculate out-of-order inserts if any
     await this.handleSubsequentRecalculation(fecha, hora, savedRecord);
 
-    return savedRecord;
+    return (await this.repository.findOne({ where: { id: savedRecord.id } }))!;
   }
 
   private async handleSubsequentRecalculation(fecha: string, hora: number, savedRecord: RegistroMacromedidor): Promise<void> {
@@ -89,6 +93,7 @@ export class RegistroMacromedidorService {
 
   async findAll(): Promise<RegistroMacromedidor[]> {
     return this.repository.find({
+      relations: { createdByUser: true },
       order: { fecha: 'DESC', hora: 'DESC' },
     });
   }
@@ -96,12 +101,14 @@ export class RegistroMacromedidorService {
   async findByDate(fecha: string): Promise<RegistroMacromedidor[]> {
     return this.repository.find({
       where: { fecha },
+      relations: { createdByUser: true },
       order: { hora: 'ASC' },
     });
   }
 
   async findByDateRange(fechaInicio: string, fechaFin: string): Promise<RegistroMacromedidor[]> {
     return this.repository.createQueryBuilder('registro')
+      .leftJoinAndSelect('registro.createdByUser', 'user')
       .where('registro.fecha BETWEEN :fechaInicio AND :fechaFin', { fechaInicio, fechaFin })
       .orderBy('registro.fecha', 'ASC')
       .addOrderBy('registro.hora', 'ASC')
@@ -110,6 +117,7 @@ export class RegistroMacromedidorService {
 
   async findByMonth(anio: number, mes: number): Promise<RegistroMacromedidor[]> {
     return this.repository.createQueryBuilder('registro')
+      .leftJoinAndSelect('registro.createdByUser', 'user')
       .where('YEAR(registro.fecha) = :anio AND MONTH(registro.fecha) = :mes', { anio, mes })
       .orderBy('registro.fecha', 'ASC')
       .addOrderBy('registro.hora', 'ASC')
@@ -188,9 +196,12 @@ export class RegistroMacromedidorService {
     }
 
     let lecturaChanged = false;
-    if (lectura_m3 !== undefined && Number(lectura_m3) !== Number(record.lectura_m3)) {
-      lecturaChanged = true;
-      record.lectura_m3 = lectura_m3;
+    if (lectura_m3 !== undefined) {
+      const lecturaM3 = Number((lectura_m3 * 10).toFixed(2));
+      if (Number(lecturaM3) !== Number(record.lectura_m3)) {
+        lecturaChanged = true;
+        record.lectura_m3 = lecturaM3;
+      }
     }
 
     record.updatedBy = userId;
@@ -213,7 +224,7 @@ export class RegistroMacromedidorService {
       await this.handleSubsequentRecalculation(record.fecha, record.hora, savedRecord);
     }
 
-    return savedRecord;
+    return (await this.repository.findOne({ where: { id } }))!;
   }
 }
 
