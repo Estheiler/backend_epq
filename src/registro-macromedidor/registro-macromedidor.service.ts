@@ -145,9 +145,7 @@ export class RegistroMacromedidorService {
     }
 
     const { fecha, hora } = record;
-    record.deletedBy = userId;
-    await this.repository.save(record);
-    await this.repository.softRemove(record);
+    await this.repository.remove(record);
 
     // After deleting, recalculate chronology for subsequent records
     // A. Find next reading

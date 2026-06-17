@@ -24,10 +24,8 @@ let RegistroMacromedidor = class RegistroMacromedidor {
     createdBy;
     createdByUser;
     updatedBy;
-    deletedBy;
     created_at;
     updatedAt;
-    deletedAt;
 };
 exports.RegistroMacromedidor = RegistroMacromedidor;
 __decorate([
@@ -76,10 +74,6 @@ __decorate([
     __metadata("design:type", Number)
 ], RegistroMacromedidor.prototype, "updatedBy", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'int', name: 'deleted_by', nullable: true }),
-    __metadata("design:type", Number)
-], RegistroMacromedidor.prototype, "deletedBy", void 0);
-__decorate([
     (0, typeorm_1.CreateDateColumn)({ type: 'timestamp', name: 'created_at' }),
     __metadata("design:type", Date)
 ], RegistroMacromedidor.prototype, "created_at", void 0);
@@ -87,10 +81,6 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)({ type: 'timestamp', name: 'updated_at', nullable: true }),
     __metadata("design:type", Date)
 ], RegistroMacromedidor.prototype, "updatedAt", void 0);
-__decorate([
-    (0, typeorm_1.DeleteDateColumn)({ type: 'timestamp', name: 'deleted_at', nullable: true }),
-    __metadata("design:type", Date)
-], RegistroMacromedidor.prototype, "deletedAt", void 0);
 exports.RegistroMacromedidor = RegistroMacromedidor = __decorate([
     (0, typeorm_1.Entity)('registro_macromedidor'),
     (0, typeorm_1.Unique)(['fecha', 'hora'])

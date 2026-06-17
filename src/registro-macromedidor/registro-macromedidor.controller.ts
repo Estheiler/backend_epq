@@ -24,7 +24,7 @@ import { GetUser } from '../common/decorators/get-user.decorator';
 @Controller('registro-macromedidor')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class RegistroMacromedidorController {
-  constructor(private readonly service: RegistroMacromedidorService) {}
+  constructor(private readonly service: RegistroMacromedidorService) { }
 
   @Post()
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.OPERARIO)
@@ -125,7 +125,7 @@ export class RegistroMacromedidorController {
   }
 
   @Patch(':id')
-  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
+  @Roles(UserRole.SUPERADMIN, UserRole.ADMIN, UserRole.OPERARIO)
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateDto: UpdateRegistroMacromedidorDto,

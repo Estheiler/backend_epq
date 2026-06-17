@@ -11,8 +11,6 @@ export declare class RegistroMacromedidor {
     createdBy: number;
     createdByUser?: User;
     updatedBy: number;
-    deletedBy: number;
     created_at: Date;
     updatedAt: Date;
-    deletedAt: Date;
 }

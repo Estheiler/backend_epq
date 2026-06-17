@@ -122,9 +122,7 @@ let RegistroMacromedidorService = class RegistroMacromedidorService {
             throw new common_1.NotFoundException(`No se encontró el registro con ID ${id}`);
         }
         const { fecha, hora } = record;
-        record.deletedBy = userId;
-        await this.repository.save(record);
-        await this.repository.softRemove(record);
+        await this.repository.remove(record);
         const nextReading = await this.repository.createQueryBuilder('registro')
             .where('registro.fecha > :fecha OR (registro.fecha = :fecha AND registro.hora > :hora)', { fecha, hora })
             .orderBy('registro.fecha', 'ASC')
