@@ -10,7 +10,7 @@ exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
 let AppService = class AppService {
     getHello() {
-        return 'API EPQ en línea - Version 1.0';
+        return 'API EPQ en línea - Version 2.0';
     }
 };
 exports.AppService = AppService;
