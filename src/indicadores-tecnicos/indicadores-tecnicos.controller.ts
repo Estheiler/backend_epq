@@ -21,11 +21,11 @@ import { UserRole } from '../users/entities/user.entity';
 import { GetUser } from '../common/decorators/get-user.decorator';
 
 @Controller('indicadores-tecnicos')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class IndicadoresTecnicosController {
   constructor(private readonly service: IndicadoresTecnicosService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   async create(
     @Body() createDto: CreateIndicadorTecnicoDto,
@@ -67,6 +67,7 @@ export class IndicadoresTecnicosController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -82,6 +83,7 @@ export class IndicadoresTecnicosController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.SUPERADMIN, UserRole.ADMIN)
   async remove(
     @Param('id', ParseIntPipe) id: number,

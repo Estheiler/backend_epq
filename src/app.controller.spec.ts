@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "API EPQ en línea - Version 1.0"', () => {
-      expect(appController.getHello()).toBe('API EPQ en línea - Version 1.0');
+    it('should return "API EPQ en línea - Version 2.0"', () => {
+      expect(appController.getHello()).toBe('API EPQ en línea - Version 2.0');
     });
   });
 });

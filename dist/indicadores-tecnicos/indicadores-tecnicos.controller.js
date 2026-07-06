@@ -76,6 +76,7 @@ let IndicadoresTecnicosController = class IndicadoresTecnicosController {
 exports.IndicadoresTecnicosController = IndicadoresTecnicosController;
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(user_entity_1.UserRole.SUPERADMIN, user_entity_1.UserRole.ADMIN),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, get_user_decorator_1.GetUser)('id')),
@@ -105,6 +106,7 @@ __decorate([
 ], IndicadoresTecnicosController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(user_entity_1.UserRole.SUPERADMIN, user_entity_1.UserRole.ADMIN),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, common_1.Body)()),
@@ -115,6 +117,7 @@ __decorate([
 ], IndicadoresTecnicosController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(user_entity_1.UserRole.SUPERADMIN, user_entity_1.UserRole.ADMIN),
     __param(0, (0, common_1.Param)('id', common_1.ParseIntPipe)),
     __param(1, (0, get_user_decorator_1.GetUser)('id')),
@@ -124,7 +127,6 @@ __decorate([
 ], IndicadoresTecnicosController.prototype, "remove", null);
 exports.IndicadoresTecnicosController = IndicadoresTecnicosController = __decorate([
     (0, common_1.Controller)('indicadores-tecnicos'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     __metadata("design:paramtypes", [indicadores_tecnicos_service_1.IndicadoresTecnicosService])
 ], IndicadoresTecnicosController);
 //# sourceMappingURL=indicadores-tecnicos.controller.js.map
